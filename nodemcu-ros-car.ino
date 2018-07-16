@@ -7,7 +7,7 @@
     roslaunch rosserial_server socket.launch
 
   Launch a teleop gamepad node:
-    roslaunch teleop_twist_joy teleop.launch joy_config:="insert your gamepad"
+    roslaunch teleop_twist_joy teleop.launch joy_config:="insert gamepad type"
 
 
   MIT License
@@ -202,7 +202,7 @@ bool rosConnected()
   {
     _connected = connected;
     digitalWrite(LED_BUILTIN, !connected); // false -> on, true -> off
-    Serial.println(connected ? "Connected" : "Disconnected");
+    Serial.println(connected ? "ROS connected" : "ROS disconnected");
   }
   return connected;
 }
