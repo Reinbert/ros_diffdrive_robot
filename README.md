@@ -1,5 +1,6 @@
 # nodemcu-ros-car
 This code is intended to control a differential drive robot via ROS Twist messages using a NodeMcu or ESP8266. The car will respond to __Twist.linear.x__ and __Twist.angular.z__ values. If you have questions or improvements email me at reinhard.sprung@gmail.com
+
 ## Parts needed:
 - Smart car chassis with at least 1 motor on each side, like this: [Smart car chassis 4WD](https://www.aliexpress.com/item/Smart-car-chassis-4WD-4-wheel-drive-force-the-chronological-magnetic-motor-With-code-disc-tachometer/32622219972.html?spm=a2g0s.9042311.0.0.27424c4djmBIqw)
 - [NodeMCU](https://en.wikipedia.org/wiki/NodeMCU) (I'm using version 1.0)
@@ -15,7 +16,7 @@ This code is intended to control a differential drive robot via ROS Twist messag
 - Robot Operating System [http://www.ros.org/](http://www.ros.org/)
 
 ## Connections:
-- Battery (+) to L298N +12V 
+- Battery (+) to L298N +12V or VCC 
 - Battery (-) to L298N GND
 - L298N GND to NodeMcu GND
 - L298N +5V to NodeMcu Vin
@@ -76,3 +77,14 @@ roslaunch teleop_joy_race teleop_serial.launch enable_deadman:=false
 - [teleop_twist_joy](http://wiki.ros.org/teleop_twist_joy) uses an enable (deadman) button which needs to be pressed while using the gamepad. Find out which one in the [config](https://github.com/ros-teleop/teleop_twist_joy/tree/indigo-devel/config).
 - Test gamepad with `jstest /dev/input/js0`
 - Make sure the teleop node is outputting commands: `rostopic echo /cmd_vel`
+- If the LED on the L298N isn't lit, then the batteries aren't connected properly or the jumper for the 5V regulator isn't placed.
+
+
+## Images:
+The cables and battery packs are a little bit whacky, but it's sufficient for the proof of concept.
+![full view](https://i.imgur.com/knOrHnc.jpg)
+![front view](https://imgur.com/VKUpHHX.jpg)
+![detail connections NodeMcu and L298N](https://i.imgur.com/jP4KJ6y.jpg)
+![detail cables to motors](https://i.imgur.com/0ckEcW2.jpg)
+![NodeMcu pinout](https://pradeepsinghblog.files.wordpress.com/2016/04/nodemcu_pins.png?w=616)
+![L298N description](http://qqtrading.com.my/image/catalog/Products/Module/L298N-module/L298N_Motor_Driver_Connections.jpg)
