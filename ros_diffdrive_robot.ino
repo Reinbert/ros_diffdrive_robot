@@ -36,6 +36,7 @@
 
 #include <math.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266WiFiMulti.h>
 #include <ros.h>
 #include <geometry_msgs/Twist.h>
 
@@ -43,6 +44,14 @@
 #define LED_BUILTIN_RED 16
 #define MAX_PWM 1023  // NOTE: Max PWM value on a NodeMcu is 1023, while on Arduino it's only 255.
 #define MIN_PWM 300   // The min amount of PWM the motors need to move. Depends on the battery, motors and controller.
+
+// Declare functions
+void setupPins();
+void setupSerial();
+void setupWiFi();
+bool rosConnected();
+void onTwist(const geometry_msgs::Twist &msg);
+float mapPwm(float x, float out_min, float out_max);
 
 // Pins
 const uint8_t L_PWM = D1;
@@ -52,20 +61,17 @@ const uint8_t R_BACK = D5;
 const uint8_t R_FORW = D6;
 const uint8_t R_PWM = D7;
 
-const char* ssid     = "----SSID----";
-const char* password = "--PASSWORD--";
+// Wifi
+// If access point is defined, a Wifi network with this name will be created.
+// Remove if you want to connect to an existing network.
+#define ACCESS_POINT_SSID "SMARTCAR"
 
-// Declare functions
-void setupPins();
-void setupSerial();
-void setupWiFi();
-void onTwist(const geometry_msgs::Twist &msg);
+#ifndef ACCESS_POINT_SSID
+ESP8266WiFiMulti wifi;
+#endif
 
-bool checkRosConnection(bool connected);
-float mapPwm(float x, float out_min, float out_max);
-
-// ROS
-IPAddress server(192, 168, 0, 12);
+// ROS serial server
+IPAddress server(192, 168, 4, 2);
 ros::NodeHandle node;
 ros::Subscriber<geometry_msgs::Twist> sub("/cmd_vel", &onTwist);
 
@@ -106,17 +112,42 @@ void setupSerial()
 
 void setupWiFi()
 {
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+#ifdef ACCESS_POINT_SSID
 
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED)
+  WiFi.disconnect();
+  Serial.println("Creating Wifi network");
+  if (WiFi.softAP(ACCESS_POINT_SSID))
+  {
+    Serial.println("Wifi network created");
+    Serial.print("SSID: ");
+    Serial.println(WiFi.softAPSSID());
+    Serial.print("IP:   ");
+    Serial.println(WiFi.softAPIP());
+  }
+
+#else
+
+  WiFi.softAPdisconnect();
+  WiFi.disconnect();
+  WiFi.mode(WIFI_STA);
+  wifi.addAP("--wifi_1--", "--password_1--");
+  wifi.addAP("--wifi_2--", "--password_2--");
+  wifi.addAP("--wifi_3--", "--password_3--");
+
+  Serial.println("Connecting to Wifi");
+  while (wifi.run() != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");
   }
+
   Serial.println("\nWiFi connected");
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+  Serial.print("IP:   ");
   Serial.println(WiFi.localIP());
+
+#endif
 }
 
 void stop()
@@ -137,22 +168,6 @@ void onTwist(const geometry_msgs::Twist &msg)
     return;
   }
 
-  /*
-    Serial.print(msg.linear.x);
-    Serial.print("|");
-    Serial.print(msg.linear.y);
-    Serial.print("|");
-    Serial.print(msg.linear.z);
-    Serial.print("   ");
-
-    Serial.print(msg.angular.x);
-    Serial.print("|");
-    Serial.print(msg.angular.y);
-    Serial.print("|");
-    Serial.print(msg.angular.z);
-    Serial.print("   ");
-  */
-
   // Cap values at [-1 .. 1]
   float x = max(min(msg.linear.x, 1.0f), -1.0f);
   float z = max(min(msg.angular.z, 1.0f), -1.0f);
@@ -165,17 +180,6 @@ void onTwist(const geometry_msgs::Twist &msg)
   // Then map those values to PWM intensities. MAX_PWM = full speed, while MIN_PWM = the minimal amount of power at which the motors begin moving.
   uint16_t lPwm = mapPwm(fabs(l), MIN_PWM, MAX_PWM);
   uint16_t rPwm = mapPwm(fabs(r), MIN_PWM, MAX_PWM);
-
-  /*
-    Serial.print(l);
-    Serial.print("|");
-    Serial.print(r);
-    Serial.print("   ");
-
-    Serial.print(lPwm);
-    Serial.print(" | ");
-    Serial.println(rPwm);
-  */
 
   // Set direction pins and PWM
   digitalWrite(L_FORW, l > 0);
@@ -192,7 +196,6 @@ void loop()
     stop();
   node.spinOnce();
 }
-
 
 bool rosConnected()
 {
@@ -212,4 +215,3 @@ float mapPwm(float x, float out_min, float out_max)
 {
   return x * (out_max - out_min) + out_min;
 }
-
