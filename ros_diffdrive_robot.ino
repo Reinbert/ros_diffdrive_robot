@@ -42,8 +42,9 @@
 
 #define LED_BUILTIN 2 // Remapping the built-in LED since the NodeMcu apparently uses a different one.
 #define LED_BUILTIN_RED 16
-#define MAX_PWM 1023  // NOTE: Max PWM value on a NodeMcu is 1023, while on Arduino it's only 255.
-#define MIN_PWM 300   // The min amount of PWM the motors need to move. Depends on the battery, motors and controller.
+// The min amount of PWM the motors need to move. Depends on the battery, motors and controller.
+// The max amount is defined by PWMRANGE in Arduino.h
+#define PWM_MIN 300
 
 // Declare functions
 void setupPins();
@@ -54,24 +55,24 @@ void onTwist(const geometry_msgs::Twist &msg);
 float mapPwm(float x, float out_min, float out_max);
 
 // Pins
-const uint8_t L_PWM = D1;
-const uint8_t L_BACK = D2;
-const uint8_t L_FORW = D3;
-const uint8_t R_BACK = D5;
-const uint8_t R_FORW = D6;
-const uint8_t R_PWM = D7;
+const uint8_t R_PWM = D1;
+const uint8_t R_BACK = D2;
+const uint8_t R_FORW = D3;
+const uint8_t L_BACK = D5;
+const uint8_t L_FORW = D6;
+const uint8_t L_PWM = D7;
 
 // Wifi
 // If access point is defined, a Wifi network with this name will be created.
 // Remove if you want to connect to an existing network.
-#define ACCESS_POINT_SSID "SMARTCAR"
+//#define ACCESS_POINT_SSID "SMARTCAR"
 
 #ifndef ACCESS_POINT_SSID
 ESP8266WiFiMulti wifi;
 #endif
 
 // ROS serial server
-IPAddress server(192, 168, 4, 2);
+IPAddress server(192, 168, 0, 11);
 ros::NodeHandle node;
 ros::Subscriber<geometry_msgs::Twist> sub("/cmd_vel", &onTwist);
 
@@ -177,9 +178,9 @@ void onTwist(const geometry_msgs::Twist &msg)
   float l = (msg.linear.x - msg.angular.z) / 2;
   float r = (msg.linear.x + msg.angular.z) / 2;
 
-  // Then map those values to PWM intensities. MAX_PWM = full speed, while MIN_PWM = the minimal amount of power at which the motors begin moving.
-  uint16_t lPwm = mapPwm(fabs(l), MIN_PWM, MAX_PWM);
-  uint16_t rPwm = mapPwm(fabs(r), MIN_PWM, MAX_PWM);
+  // Then map those values to PWM intensities. PWMRANGE = full speed, while PWM_MIN = the minimal amount of power at which the motors begin moving.
+  uint16_t lPwm = mapPwm(fabs(l), PWM_MIN, PWMRANGE);
+  uint16_t rPwm = mapPwm(fabs(r), PWM_MIN, PWMRANGE);
 
   // Set direction pins and PWM
   digitalWrite(L_FORW, l > 0);
