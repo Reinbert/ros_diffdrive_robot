@@ -41,7 +41,7 @@
 #include <geometry_msgs/Twist.h>
 
 #define LED_BUILTIN 2 // Remapping the built-in LED since the NodeMcu apparently uses a different one.
-#define LED_BUILTIN_RED 16
+#define LED_BUILTIN_RED 16 // If using a NodeMcu v1, then there's another red onboard led.
 // The min amount of PWM the motors need to move. Depends on the battery, motors and controller.
 // The max amount is defined by PWMRANGE in Arduino.h
 #define PWM_MIN 300
@@ -65,14 +65,14 @@ const uint8_t L_PWM = D7;
 // Wifi
 // If access point is defined, a Wifi network with this name will be created.
 // Remove if you want to connect to an existing network.
-//#define ACCESS_POINT_SSID "SMARTCAR"
+#define ACCESS_POINT_SSID "SMARTCAR"
 
 #ifndef ACCESS_POINT_SSID
 ESP8266WiFiMulti wifi;
 #endif
 
 // ROS serial server
-IPAddress server(192, 168, 0, 11);
+IPAddress server(192, 168, 4, 2);
 ros::NodeHandle node;
 ros::Subscriber<geometry_msgs::Twist> sub("/cmd_vel", &onTwist);
 
