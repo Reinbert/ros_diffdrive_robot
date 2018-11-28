@@ -85,6 +85,7 @@ void setup()
   setupWiFi();
 
   // Connect to rosserial socket server and init node. (Using default port of 11411)
+  Serial.printf("Connecting to ROS serial server at %s\n", server.toString().c_str());
   node.getHardware()->setConnection(server);
   node.initNode();
   node.subscribe(sub);
