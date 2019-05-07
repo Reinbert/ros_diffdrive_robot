@@ -53,32 +53,32 @@ This software is intended to control a 4 wheel differential drive robot via [ROS
 
 This should suffice to make the robot car connect to your Wifi and rosserial server and follow twist commands from your gamepad.
 ## Alternative Teleop:
-I've written this small ROS node ([teleop_joy_race](https://github.com/Reinbert/teleop_joy_race)) which allows to control this robot like a car in a racing video game. Pressing __Right Trigger__ will accelerate the car, while pressing __Left Trigger__ will decelerate and make the robot go backwards. Steering is done via the __Left Stick__. In the default configuration you are required to hold down the deadman button (button A on xbox360) while controlling for safety reasons. The node should work with any joystick that is supported by Linux. However, I only tested it with an Xbox360 wireless controller and therefore only provided a config file for that controller. Feel free to create and send me yours.
+I've written this small ROS node ([teleop_twist_gamepad](https://github.com/Reinbert/teleop_twist_gamepad)) which allows to control this robot like a car in a racing video game. Pressing __Right Trigger__ will accelerate the car, while pressing __Left Trigger__ will decelerate and make the robot go backwards. Steering is done via the __Left Stick__. In the default configuration you are required to hold down the deadman button (button A on xbox360) for safety reasons. The node should work with any joystick that is supported by Linux. However, I only tested it with an Xbox360 wireless controller and therefore only provided a config file for that controller. Feel free to create and send me yours.
 #### Installation: 
 ```sh
 cd ~/catkin_ws/src
-git clone https://github.com/Reinbert/teleop_joy_race
+git clone https://github.com/Reinbert/teleop_twist_gamepad
 cd ..
 catkin_make
 source devel/setup.bash
 ```
 #### Launch:
 ```sh
-roslaunch teleop_joy_race teleop.launch
+roslaunch teleop_twist_gamepad teleop.launch
 ```
 Launch teleop AND a rosserial socket at the same time. With this you don't need to launch a [rosserial_server](https://wiki.ros.org/rosserial_server) in a second terminal:
 ```sh
-roslaunch teleop_joy_race teleop_serial.launch 
+roslaunch teleop_twist_gamepad teleop_serial.launch 
 ```
-Disable deadman button. Only intended for toy cars. USE AT YOUR OWN RISK!
+How to disable the deadman button: (Only intended for toy cars. USE AT YOUR OWN RISK!)
 ```sh
-roslaunch teleop_joy_race teleop.launch enable_deadman:=false 
-roslaunch teleop_joy_race teleop_serial.launch enable_deadman:=false
+roslaunch teleop_twist_gamepad teleop.launch enable_deadman:=false 
+roslaunch teleop_twist_gamepad teleop_serial.launch enable_deadman:=false
 ```
 ## Troubleshooting:
 - Open Serial Monitor in Arduino IDE and check for Wifi and ROS connection output. 
 - The LED on the NodeMcu should turn on (only) if its connected to both Wifi and ROS.
-- [teleop_twist_joy](https://wiki.ros.org/teleop_twist_joy) and [teleop_joy_race](https://github.com/Reinbert/teleop_joy_race) use an enable (deadman) button which needs to be pressed while using the gamepad. Find out which one in the [config](https://github.com/ros-teleop/teleop_twist_joy/tree/indigo-devel/config).
+- [teleop_twist_joy](https://wiki.ros.org/teleop_twist_joy) and [teleop_twist_gamepad](https://github.com/Reinbert/teleop_twist_gamepad) use an enable (deadman) button which needs to be pressed while using the gamepad. Find out which one in the [config](https://github.com/ros-teleop/teleop_twist_joy/tree/indigo-devel/config).
 - Test gamepad with `jstest /dev/input/js0`
 - Make sure the teleop node is outputting commands: `rostopic echo /cmd_vel`
 - If the LED on the L298N isn't lit, then the batteries aren't connected properly or the jumper for the 5V regulator isn't placed.
