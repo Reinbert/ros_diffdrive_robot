@@ -43,8 +43,13 @@
 #define LED_BUILTIN 2 // Remapping the built-in LED since the NodeMcu apparently uses a different one.
 #define LED_BUILTIN_RED 16 // If using a NodeMcu v1, then there's another red onboard led.
 // The min amount of PWM the motors need to move. Depends on the battery, motors and controller.
-// The max amount is defined by PWMRANGE in Arduino.h
 #define PWM_MIN 300
+// Due to an update of the Arduino environment, PWMRANGE is no longer defined in Arduino.h, so we have to define it ourselves. Make sure the value corresponds to your microcontroller. Arduino default is 255, while NodeMCU uses 1023 (at the time of creating this project).
+#ifndef PWMRANGE
+#define PWMRANGE 1023
+#endif
+
+
 
 // Declare functions
 void setupPins();
